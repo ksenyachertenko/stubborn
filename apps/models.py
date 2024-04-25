@@ -455,6 +455,14 @@ class Team(BaseStubModel):
         max_length=10
     )
 
+    def __str__(self) -> str:
+        """Object's string representation.
+
+        Returns:
+            String representation.
+        """
+        return f'{self.name}'
+
     class Meta:
         verbose_name = 'team'
         verbose_name_plural = 'teams'

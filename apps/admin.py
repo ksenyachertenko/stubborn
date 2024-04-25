@@ -521,3 +521,23 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         application = obj.application
         obj.delete()
         return HttpResponseRedirect(reverse('admin:apps_application_change', args=(application.pk,)))
+
+
+@admin.register(models.Team)
+class TeamAdmin(admin.ModelAdmin):
+    change_form_template = 'admin/apps/team/change_form.html'
+
+    fields = (
+        'name',
+        'slug',
+        'owner',
+        'team_type',
+        'inviter'
+    )
+    list_display = (
+        'name',
+        'slug',
+        'owner',
+        'team_type',
+        'inviter'
+    )
