@@ -463,6 +463,48 @@ class Team(BaseStubModel):
         """
         return f'{self.name}'
 
+    def is_member(self, user: User) -> bool:
+        """Check if the user is a member or owner of the team.
+
+        Args:
+            user: user object.
+
+        Returns:
+            True, if user is a member, otherwise False.
+        """
+        return user in self.users.all() or self.owner == user
+
+    def user_can_join(self, user: User) -> bool:
+        """Check if user can join the team.
+
+        Args:
+            user: user object.
+
+        Returns:
+            True, if user can join the team, otherwise False.
+        """
+        return not self.is_member(user) and self.team_type == TeamChoices.PUBLIC
+
+    def user_can_leave(self, user: User) -> bool:
+        """Check if user can leave the team.
+
+        Args:
+            user: user object.
+
+        Returns:
+            True, if user can leave the team, otherwise False.
+        """
+        return self.is_member(user) and self.owner != user
+
+    def remove_user(self, user: User) -> None:
+        """Remove user from the team.
+
+        Args:
+            user: user object.
+        """
+        if self.user_can_leave(user):
+            self.users.remove(user)
+
     class Meta:
         verbose_name = 'team'
         verbose_name_plural = 'teams'

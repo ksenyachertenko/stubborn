@@ -7,6 +7,7 @@ from django.contrib.admin.options import IS_POPUP_VAR
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from rangefilter.filters import DateTimeRangeFilterBuilder
 
@@ -539,5 +540,28 @@ class TeamAdmin(admin.ModelAdmin):
         'slug',
         'owner',
         'team_type',
-        'inviter'
+        'inviter',
+        'get_join_button'
     )
+
+    @staticmethod
+    @admin.display(description='Join the team')
+    def get_join_button(obj: models.Team) -> str:
+        """Get template for join button.
+
+        Args:
+            obj: Team object.
+
+        Returns:
+            Join button template.
+        """
+        template_to_display = f"""
+        <input type="submit" value="Join" class="default join-team-btn"
+        data-teamid="{obj.pk}" data-teamname="{str(obj)}">
+        """
+
+        return format_html(template_to_display)
+    class Media:
+        js = (
+            'admin/js/team/teamActions.js',
+        )

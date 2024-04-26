@@ -222,3 +222,52 @@ class ImportFromFile(APIView):
         messages.add_message(request, messages.INFO, message_text)
 
         return Response(status=status.HTTP_201_CREATED)
+
+
+class JoinTeam(APIView):
+    """Join the Team."""
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = (JSONRenderer,)
+    @staticmethod
+    def get(request: Request, team_id: str) -> Response:
+        """Join the team with the authorized user.
+
+        Args:
+            request: request object.
+            team_id: Team id to be joined.
+
+        Returns:
+            Response object.
+        """
+        team = get_object_or_404(models.Team, pk=team_id)
+        user = request.user
+
+        if team.user_can_join(user):
+            user.teams.add(team)
+
+        return Response(status=status.HTTP_200_OK)
+
+
+class LeaveTeam(APIView):
+    """Leave the Team."""
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = (JSONRenderer,)
+    @staticmethod
+    def get(request: Request, team_id: str) -> Response:
+        """Leave the team with the authorized user.
+
+        Args:
+            request: request object.
+            team_id: Team id to be left.
+
+        Returns:
+            Response object.
+        """
+        team = get_object_or_404(models.Team, pk=team_id)
+        user = request.user
+
+        team.remove_user(user)
+
+        return Response(status=status.HTTP_200_OK)
