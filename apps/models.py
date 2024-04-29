@@ -472,7 +472,7 @@ class Team(BaseStubModel):
         Returns:
             True, if user is a member, otherwise False.
         """
-        return user in self.users.all() or self.owner == user
+        return self.owner == user or user in self.users.all()
 
     def user_can_join(self, user: User) -> bool:
         """Check if user can join the team.
@@ -483,7 +483,7 @@ class Team(BaseStubModel):
         Returns:
             True, if user can join the team, otherwise False.
         """
-        return not self.is_member(user) and self.team_type == TeamChoices.PUBLIC
+        return self.team_type == TeamChoices.PUBLIC and not self.is_member(user)
 
     def user_can_leave(self, user: User) -> bool:
         """Check if user can leave the team.
@@ -494,7 +494,7 @@ class Team(BaseStubModel):
         Returns:
             True, if user can leave the team, otherwise False.
         """
-        return self.is_member(user) and self.owner != user
+        return self.owner != user and self.is_member(user)
 
     def remove_user(self, user: User) -> None:
         """Remove user from the team.

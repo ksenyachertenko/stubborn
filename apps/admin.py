@@ -527,6 +527,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
 @admin.register(models.Team)
 class TeamAdmin(admin.ModelAdmin):
     change_form_template = 'admin/apps/team/change_form.html'
+    current_user = None
 
     fields = (
         'name',
@@ -544,9 +545,13 @@ class TeamAdmin(admin.ModelAdmin):
         'get_join_button'
     )
 
-    @staticmethod
+    def get_list_display(self, request):
+        self.current_user = request.user
+        return super().get_list_display(request)
+
+
     @admin.display(description='Join the team')
-    def get_join_button(obj: models.Team) -> str:
+    def get_join_button(self, obj: models.Team) -> str:
         """Get template for join button.
 
         Args:
@@ -555,13 +560,19 @@ class TeamAdmin(admin.ModelAdmin):
         Returns:
             Join button template.
         """
-        template_to_display = f"""
+        if obj.owner == self.current_user:
+            return format_html(f"""<input type="submit" value="Owner" disabled>""")
+
+        if obj.is_member(self.current_user):
+            return format_html(f"""<input type="submit" value="Member" disabled>""")
+
+        return format_html(f"""
         <input type="submit" value="Join" class="default join-team-btn"
         data-teamid="{obj.pk}" data-teamname="{str(obj)}">
-        """
+        """)
 
-        return format_html(template_to_display)
     class Media:
         js = (
             'admin/js/team/teamActions.js',
         )
+        css = {'all': ('admin/css/team.css',)}
