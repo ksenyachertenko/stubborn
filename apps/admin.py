@@ -571,6 +571,12 @@ class TeamAdmin(admin.ModelAdmin):
         data-teamid="{obj.pk}" data-teamname="{str(obj)}">
         """)
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if request.user.is_superuser:
+            return queryset
+        return None
+
     class Media:
         js = (
             'admin/js/team/teamActions.js',
